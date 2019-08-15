@@ -1,0 +1,293 @@
+format_version: '2'
+name: My Project
+versions:
+  api: '1.0'
+  backend: 1.6.148
+  commit: 605f106ab95776472e3febf2fac2471441fb1816
+  content: 1.0.1600
+  content_pack_name: acme-packs-all
+  format: '2'
+  frontend: 1.6.1881
+board:
+  identifier: CustomBoard
+  device: ATmega328PB-AU
+details: null
+application: null
+middlewares: {}
+drivers:
+  CPU:
+    user_label: CPU
+    definition: 'Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::CPU::driver_config_definition::SYSCTRL::Drivers:SYSCTRL:'
+    functionality: System
+    api: 'Drivers:SYSCTRL:'
+    configuration:
+      async_input_speed: 32768
+      clkadc_oscillator: Input clock
+      clkasy_oscillator: Async input clock
+      clkcpu_oscillator: Input clock
+      clkio_oscillator: Input clock
+      clkptc_oscillator: Input clock
+      cpu_clock_source: CLKcpu
+      cpu_sreg_i: true
+      enable_async_input: true
+      enable_clkadc: true
+      enable_clkasy: true
+      enable_clkcpu: true
+      enable_clkio: true
+      enable_clkptc: true
+      enable_core_clock: true
+      enable_input: true
+      input_speed: 8000000
+      pm_ivsel: Interrupt vector placed at the beginning of main FLASH memory
+      pm_pud: false
+      pm_se: false
+      pm_sm: Power Save
+      prescaler_divider: '1'
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: Core
+          input: Core
+          external: false
+          external_frequency: 0
+        configuration: {}
+  FLASH_0:
+    user_label: FLASH_0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::EEPROM::driver_config_definition::NVMCTRL.Basic::Drivers:NVMCTRL:Basic
+    functionality: Flash
+    api: Drivers:NVMCTRL:Basic
+    configuration:
+      blbset: false
+      eempe: false
+      eepe: false
+      eepm0: false
+      eepm1: false
+      eere: false
+      eerie: false
+      nvmctrl_irq_driven: false
+      nvmctrl_relocate_flash_functions: false
+      pgers: false
+      pgwrt: false
+      rwwsb: false
+      rwwsre: false
+      sigrd: false
+      spmen: false
+      spmie: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
+  TIMER_RTC:
+    user_label: TIMER_RTC
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::TC2::driver_config_definition::TC8.Mode.0.Normal::Drivers:TC8:Init
+    functionality: Timer
+    api: Drivers:TC8:Init
+    configuration:
+      inc_isr_harness: false
+      tc8_async_exclk: false
+      tc8_coma: Normal port operation, OCA disconnected
+      tc8_comb: Normal port operation, OCB disconnected
+      tc8_cs: IO clock divided by 128
+      tc8_ociea: false
+      tc8_ocieb: false
+      tc8_orca: 0
+      tc8_orcb: 0
+      tc8_psrasy: false
+      tc8_psrsync: false
+      tc8_toie: true
+      tc8_tsm: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: TC2
+          input: CLKasy
+          external: false
+          external_frequency: 0
+        configuration:
+          tc2_clock_source: CLKasy
+  USART_0:
+    user_label: USART_0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::USART0::driver_config_definition::Async.IRQ.Mode::Drivers:USART:Basic
+    functionality: USART
+    api: Drivers:USART:Basic
+    configuration:
+      driver_rx_buffer_size: '256'
+      driver_tx_buffer_size: '256'
+      printf_support: false
+      usart_baud_rate: 9600
+      usart_mpcm: false
+      usart_rxcie: true
+      usart_rxen: true
+      usart_rxsie: false
+      usart_sfde: false
+      usart_txcie: false
+      usart_txen: true
+      usart_ucpha: Sample data on the first edge of XCK
+      usart_ucpol: false
+      usart_ucsz: 8-bit
+      usart_udord: MSB is transmitted first
+      usart_udrie: false
+      usart_upm: Disabled
+      usart_usbs: 1-bit
+    optional_signals: []
+    variant:
+      specification: UMSEL=0
+      required_signals:
+      - name: USART0/RXD
+        pad: PD0
+        label: RXD
+      - name: USART0/TXD
+        pad: PD1
+        label: TXD
+    clocks:
+      domain_group:
+        nodes:
+        - name: USART
+          input: CLKio
+          external: false
+          external_frequency: 0
+        configuration:
+          usart_clock_source: CLKio
+  USART_1:
+    user_label: USART_1
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::USART1::driver_config_definition::Async.IRQ.Mode::Drivers:USART:Basic
+    functionality: USART
+    api: Drivers:USART:Basic
+    configuration:
+      driver_rx_buffer_size: '8'
+      driver_tx_buffer_size: '8'
+      printf_support: false
+      usart_baud_rate: 9600
+      usart_mpcm: false
+      usart_rxcie: true
+      usart_rxen: false
+      usart_rxsie: false
+      usart_sfde: false
+      usart_txcie: false
+      usart_txen: true
+      usart_ucpha: Sample data on the first edge of XCK
+      usart_ucpol: false
+      usart_ucsz: 8-bit
+      usart_udord: MSB is transmitted first
+      usart_udrie: false
+      usart_upm: Disabled
+      usart_usbs: 1-bit
+    optional_signals: []
+    variant:
+      specification: UMSEL=0
+      required_signals:
+      - name: USART1/RXD
+        pad: PB4
+        label: RXD
+      - name: USART1/TXD
+        pad: PB3
+        label: TXD
+    clocks:
+      domain_group:
+        nodes:
+        - name: USART
+          input: CLKio
+          external: false
+          external_frequency: 0
+        configuration:
+          usart_clock_source: CLKio
+pads:
+  LED_CLK:
+    name: PE0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PE0
+    mode: Digital output
+    user_label: LED_CLK
+    configuration: null
+  LED_IDLE:
+    name: PE1
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PE1
+    mode: Digital output
+    user_label: LED_IDLE
+    configuration: null
+  RN_RESET:
+    name: PB0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PB0
+    mode: Digital output
+    user_label: RN_RESET
+    configuration:
+      pad_initial_level: High
+  MCU_TX:
+    name: PB3
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PB3
+    mode: Digital output
+    user_label: MCU_TX
+    configuration: null
+  MCU_RX:
+    name: PB4
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PB4
+    mode: Digital input
+    user_label: MCU_RX
+    configuration:
+      pad_pull_config: Pull-up
+  LED_MSR:
+    name: PE2
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PE2
+    mode: Digital output
+    user_label: LED_MSR
+    configuration: null
+  LED_TX:
+    name: PE3
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PE3
+    mode: Digital output
+    user_label: LED_TX
+    configuration: null
+  ADC_PLUS:
+    name: PC0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PC0
+    mode: Analog
+    user_label: ADC_PLUS
+    configuration: null
+  ADC_POWER:
+    name: PC1
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PC1
+    mode: Digital output
+    user_label: ADC_POWER
+    configuration: null
+  ADC_MINUS:
+    name: PC2
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PC2
+    mode: Analog
+    user_label: ADC_MINUS
+    configuration: null
+  BAT_ADC:
+    name: PC4
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PC4
+    mode: Analog
+    user_label: BAT_ADC
+    configuration: null
+  BAT_GND:
+    name: PC5
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PC5
+    mode: Digital output
+    user_label: BAT_GND
+    configuration:
+      pad_initial_level: High
+  RN_RX:
+    name: PD0
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PD0
+    mode: Digital input
+    user_label: RN_RX
+    configuration: null
+  RN_TX:
+    name: PD1
+    definition: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::pad::PD1
+    mode: Digital output
+    user_label: RN_TX
+    configuration: null
+toolchain_options:
+- definition:
+    identifier: Atmel:ATMega328PB_drivers:1.0.0::ATmega328PB-AU::environment_definition::All:Atmel.Studio:7.0.0
+  configuration:
+    compiler_config:
+      avrgcc_compiler_miscellaneous_OtherFlags: -std=gnu99
+    linker_config:
+      avrgcc_linker_miscellaneous_LinkerFlags: ''
