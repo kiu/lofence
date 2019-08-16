@@ -1,0 +1,11 @@
+1) Power supply
+I never used a DC to DC converter before and wasn't sure if it could interfere with the RN2483 or ADC.
+Therefore in addition I placed a LDO as a backup on the board as well.
+The DC to DC converter works fine, so the LDO (U2, C2, C3) can be left unpopulated.
+
+2) Resistor divider
+Instead of
+  [Fence+]--[10M]--[10M]--[1M]--[Measure]--[5k8]--[Fence-/GND]
+
+I probably should have done
+  [+12kV]--[10M]--[1M]--[Measure]--[5k8]--[GND]--[10M]--[Fence-]
