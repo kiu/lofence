@@ -9,3 +9,5 @@ Instead of
 
 I probably should have done
   [+12kV]--[10M]--[1M]--[Measure]--[5k8]--[GND]--[10M]--[Fence-]
+
+3) The BOM of REV B was published with a wrong resistor value for R4. The correct value is 5k76.
