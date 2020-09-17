@@ -10,7 +10,7 @@
 
 #define DEBUG 1
 //#define FACTORY_RESET 1
-#define INTERVAL_SECONDS 60 * 60
+#define INTERVAL_SECONDS 60 * 72
 #define MEASURE_MS 15000
 
 #include "secret.h"

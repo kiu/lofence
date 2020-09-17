@@ -129,6 +129,9 @@ void rn2483_init() {
 	}
 	#endif
 	
+	rn2483_tx("mac set adr on\r\n");
+	rn2483_rx();
+
 	sprintf (buffer_rn, "mac set devaddr %s\r\n", devAddr);
 	rn2483_tx(buffer_rn);
 	rn2483_rx();
@@ -442,7 +445,7 @@ int main(void) {
 	#ifdef DEBUG
 	debug("\r\n");
 	debug("\r\n");
-	debug("LoFence REV B v0.3 by kiu\r\n");
+	debug("LoFence REV B v0.4 by kiu\r\n");
 	debug("https://github.com/kiu/lofence\r\n");
 	debug("Lets get started!\r\n");
 	debug("\r\n");
