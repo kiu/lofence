@@ -1,14 +1,20 @@
-function decodeUplink(input) {
-  data = {};
+function Decoder(bytes, port) {
   
-  data.rounds = (input.bytes[0] << 8) + input.bytes[1];
-  data.battery = (input.bytes[2] << 8) + input.bytes[3];
-  data.fence_positive = (input.bytes[4] << 8) + input.bytes[5];
-  data.fence_negative = (input.bytes[6] << 8) + input.bytes[7];
+  var decoded = {};
   
-  return {
-    data: data,
-    warnings: [],
-    errors: []
-  };
+  if (port == 0x01 && bytes.length == 8) {
+    
+    decoded.round = bytes[0] << 8 | bytes[1];
+    decoded.battery = bytes[2] << 8 | bytes[3];
+    decoded.fence_positive = bytes[4] << 8 | bytes[5];
+    decoded.fence_negative = bytes[6] << 8 | bytes[7];
+    
+    decoded.reset = 0;
+    if (decoded.round === 0) {
+      decoded.reset = 1;
+    }
+    
+  }
+
+  return decoded;
 }
