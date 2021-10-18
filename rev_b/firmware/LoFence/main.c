@@ -119,6 +119,14 @@ void rn2483_init() {
 
 	rn2483_tx("sys get hweui\r\n");
 	rn2483_rx();
+	
+	if(strcmp("FFFFFFFFFFFFFFFF", devEui) == 0) {
+		// DevEUI not set, so use hweui
+		strncpy(devEui, buffer_rn, 16);
+		#ifdef DEBUG
+		debug("DevEUI not set. Using HWEUI.\r\n");
+		#endif
+	}
 
 	#ifdef FACTORY_RESET
 	rn2483_tx("sys factoryRESET\r\n");
@@ -132,7 +140,7 @@ void rn2483_init() {
 	rn2483_tx("mac set adr on\r\n");
 	rn2483_rx();
 
-	sprintf (buffer_rn, "mac set devaddr %s\r\n", devAddr);
+	sprintf (buffer_rn, "mac set deveui %s\r\n", devEui);
 	rn2483_tx(buffer_rn);
 	rn2483_rx();
 	if (strcmp(buffer_rn, "ok\r\n") != 0) {
@@ -140,7 +148,7 @@ void rn2483_init() {
 		return;
 	}
 
-	sprintf (buffer_rn, "mac set nwkskey %s\r\n", nwkSKey);
+	sprintf (buffer_rn, "mac set appeui %s\r\n", appEui);
 	rn2483_tx(buffer_rn);
 	rn2483_rx();
 	if (strcmp(buffer_rn, "ok\r\n") != 0) {
@@ -148,10 +156,27 @@ void rn2483_init() {
 		return;
 	}
 
-	sprintf (buffer_rn, "mac set appskey %s\r\n", appSKey);
+	sprintf (buffer_rn, "mac set appkey %s\r\n", appKey);
 	rn2483_tx(buffer_rn);
 	rn2483_rx();
 	if (strcmp(buffer_rn, "ok\r\n") != 0) {
+		rn2483_init_error();
+		return;
+	}
+
+	sprintf (buffer_rn, "mac save\r\n");
+	rn2483_tx(buffer_rn);
+	rn2483_rx();
+	if (strcmp(buffer_rn, "ok\r\n") != 0) {
+		rn2483_init_error();
+		return;
+	}
+	
+	sprintf (buffer_rn, "mac join otaa\r\n");
+	rn2483_tx(buffer_rn);
+	rn2483_rx();
+	rn2483_rx();
+	if (strcmp(buffer_rn, "accepted\r\n") != 0) {
 		rn2483_init_error();
 		return;
 	}
