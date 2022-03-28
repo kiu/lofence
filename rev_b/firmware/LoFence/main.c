@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "main.h"
+#include "radio.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -16,7 +17,6 @@ volatile uint8_t adc_min = 0;
 uint8_t adc_val = 0;
 
 char buffer_dbg [256];
-char buffer_rn [256];
 	
 uint16_t volt_bat = 0;
 uint16_t volt_fence_plus = 0;
@@ -86,108 +86,7 @@ void adc_init() {
 	#endif
 }
 
-void rn2483_init_error() {
-	#ifdef DEBUG
-	debug("Aborting initialization due to unexpected response\r\n");
-	#endif
 
-	rn2483_tx("sys sleep 86400000\r\n");
-	
-	while(1) {
-		LED_TX_set_level(true);
-		_delay_ms(200);
-		LED_TX_set_level(false);
-		_delay_ms(200);
-	}
-}
-
-void rn2483_init() {
-	#ifdef DEBUG
-	debug("RN2483 initialization\r\n");
-	#endif
-
-	// Reset RN2483
-	RN_RESET_set_level(false);
-	_delay_ms(1);
-	RN_RESET_set_level(true);
-	_delay_ms(1000);
-
-	rn2483_break_and_baud();
-	
-	rn2483_tx("sys get ver\r\n");
-	rn2483_rx();
-
-	rn2483_tx("sys get hweui\r\n");
-	rn2483_rx();
-	
-	if(strcmp("FFFFFFFFFFFFFFFF", devEui) == 0) {
-		// DevEUI not set, so use hweui
-		strncpy(devEui, buffer_rn, 16);
-		#ifdef DEBUG
-		debug("DevEUI not set. Using HWEUI.\r\n");
-		#endif
-	}
-
-	#ifdef FACTORY_RESET
-	rn2483_tx("sys factoryRESET\r\n");
-	_delay_ms(5000);
-	rn2483_break_and_baud();
-	while(1) {
-		rn2483_rx();
-	}
-	#endif
-	
-	rn2483_tx("mac set adr on\r\n");
-	rn2483_rx();
-
-	sprintf (buffer_rn, "mac set deveui %s\r\n", devEui);
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		rn2483_init_error();
-		return;
-	}
-
-	sprintf (buffer_rn, "mac set appeui %s\r\n", appEui);
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		rn2483_init_error();
-		return;
-	}
-
-	sprintf (buffer_rn, "mac set appkey %s\r\n", appKey);
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		rn2483_init_error();
-		return;
-	}
-
-	sprintf (buffer_rn, "mac save\r\n");
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		rn2483_init_error();
-		return;
-	}
-	
-	sprintf (buffer_rn, "mac join otaa\r\n");
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	rn2483_rx();
-	if (strcmp(buffer_rn, "accepted\r\n") != 0) {
-		rn2483_init_error();
-		return;
-	}
-	
-	rn2483_tx("sys sleep 86400000\r\n");
-
-	#ifdef DEBUG
-	debug("\r\n");
-	#endif
-
-}
 
 // ----------------------------------------------------------------------------------------------
 
@@ -207,71 +106,6 @@ void debug(char buf[]) {
 		USART_1_write(buf[i]);
 	}	
 	while (USART_1_is_tx_busy()) {}
-	#endif
-}
-
-void rn2483_break_and_baud() {
-	#ifdef DEBUG
-	debug ("RN2483 wakeup and baud change\r\n");
-	#endif
-	
-	USART_0_disable();
-
-	RN_TX_set_level(false);
-	_delay_ms(5);
-	RN_TX_set_level(true);
-
-	USART_0_enable();
-	
-	while (!USART_0_is_tx_ready()) {}
-	USART_0_write(0x55);
-	
-	rn2483_rx_clear();
-}
-
-void rn2483_tx(char buf[]) {
-	#ifdef DEBUG
-	debug("RN2483 TX: ");
-	debug(buf);
-	#endif
-	
-	for (uint8_t i = 0; i < strlen(buf); i++) {
-		while (!USART_0_is_tx_ready()) {}
-		USART_0_write(buf[i]);
-	}
-	while (USART_0_is_tx_busy()) {}
-}
-
-void rn2483_rx_clear() {
-	#ifdef DEBUG
-	debug("RN2483 RX clearing\r\n");
-	#endif
-		
-	while(USART_0_is_rx_ready()) {
-		while(USART_0_is_rx_ready()) {
-			USART_0_read();
-		}
-		_delay_ms(100);
-	}
-
-}
-
-void rn2483_rx() {
-	char nc = 0x00;
-	uint8_t len = 0;
-
-	for (; len < 255; len++) {
-		nc = USART_0_read();		
-		buffer_rn[len] = nc;
-		if (nc == '\n') {
-			break;
-		}
-	}
-	buffer_rn[len+1] = '\0';
-	
-	#ifdef DEBUG
-	debug("RN2483 RX: ");
-	debug(buffer_rn);
 	#endif
 }
 
@@ -364,83 +198,6 @@ void measure() {
 	#endif
 }
 
-void transmit_error() {
-	#ifdef DEBUG
-	debug("Aborting transmission due to unexpected response\r\n");
-	#endif
-
-	rn2483_tx("sys sleep 86400000\r\n");
-	
-	#ifdef DEBUG
-	debug("\r\n");
-	#endif
-	
-	for (uint8_t i = 0; i < 20; i++) {
-		LED_TX_set_level(true);
-		_delay_ms(200);
-		LED_TX_set_level(false);
-		_delay_ms(200);		
-	}
-}
-
-void transmit() {
-	LED_TX_set_level(true);
-	#ifdef DEBUG
-	debug("Transmitting\r\n");
-	#endif
-
-	rn2483_break_and_baud();
-
-	rn2483_tx("mac join abp\r\n");
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		transmit_error();
-		return;
-	}
-	rn2483_rx();
-	if (strcmp(buffer_rn, "accepted\r\n") != 0) {
-		transmit_error();
-		return;
-	}
-
-	rn2483_tx("mac get upctr\r\n");
-	rn2483_rx();
-
-	rn2483_tx("mac set pwridx 1\r\n"); // 5 = low power, 1 = high power
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		transmit_error();
-		return;
-	}
-
-	sprintf (buffer_rn, "mac tx uncnf 1 %04X%04X%04X%04X\r\n", rounds, volt_bat, volt_fence_plus, volt_fence_minus);
-	rn2483_tx(buffer_rn);
-	rn2483_rx();
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		transmit_error();
-		return;	
-	}
-	rn2483_rx();
-	if (strcmp(buffer_rn, "mac_tx_ok\r\n") != 0) {
-		transmit_error();
-		return;
-	}
-
-	rn2483_tx("mac save\r\n");
-	rn2483_rx();		
-	if (strcmp(buffer_rn, "ok\r\n") != 0) {
-		transmit_error();
-		return;
-	}
-	
-	rn2483_tx("sys sleep 86400000\r\n");
-	
-	LED_TX_set_level(false);
-	#ifdef DEBUG
-	debug("\r\n");
-	#endif
-}
-
 void pause() {
 	LED_IDLE_set_level(true);
 	#ifdef DEBUG
@@ -470,7 +227,7 @@ int main(void) {
 	#ifdef DEBUG
 	debug("\r\n");
 	debug("\r\n");
-	debug("LoFence REV B v0.4 by kiu\r\n");
+	debug("LoFence REV B v0.5\r\n");
 	debug("https://github.com/kiu/lofence\r\n");
 	debug("Lets get started!\r\n");
 	debug("\r\n");
@@ -480,7 +237,7 @@ int main(void) {
 	adc_init();
 	LED_MSR_set_level(false);
 
-	rn2483_init();			
+	// No need to init RN2xx3, as that is done at the start of transmit().
 	LED_TX_set_level(false);
 		
 	while (1) {
@@ -491,8 +248,9 @@ int main(void) {
 		#endif
 		
 		measure();
+		// TODO measure internal temperature
 		
-		transmit();		
+		transmit(volt_bat, volt_fence_plus, volt_fence_minus);		
 		
 		pause();		
 
